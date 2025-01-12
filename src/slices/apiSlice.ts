@@ -1,10 +1,22 @@
+import { RootState } from '@/store'
 import { IImage, ImageOrderUpdate, IUser } from '@/types/types'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
 
+const baseQuery = fetchBaseQuery({
+    baseUrl: process.env.REACT_APP_BACKEND_URL,
+    prepareHeaders: (headers, { getState }) => {
+        const token = (getState() as RootState).auth.token        
+        if (token) {
+            headers.set('Authorization', `Bearer ${token}`)
+        }
+        return headers
+    },
+})
+
 export const userApi = createApi({
     reducerPath: 'api',
-    baseQuery: fetchBaseQuery({ baseUrl: process.env.REACT_APP_BACKEND_URL, credentials: 'include' }),
+    baseQuery: baseQuery,
     endpoints: (builder) => ({
         signup: builder.mutation<{ success: boolean, message: string }, IUser>({
             query: (data) => ({
@@ -30,7 +42,7 @@ export const userApi = createApi({
             })
         }),
 
-        signin: builder.mutation<{ success: boolean, userData: IUser }, { email: string, password: string }>({
+        signin: builder.mutation<{ success: boolean, token: string }, { email: string, password: string }>({
             query: (data) => ({
                 url: `/signin`,
                 method: 'POST',
@@ -56,7 +68,7 @@ export const userApi = createApi({
 
         //---------------------- Images Api---------------------------------------//
 
-        createImage: builder.mutation<{message:String,image:IImage}, Partial<IImage>>({
+        createImage: builder.mutation<{ message: String, image: IImage }, Partial<IImage>>({
             query: (image) => ({
                 url: '/images',
                 method: 'POST',
@@ -65,13 +77,13 @@ export const userApi = createApi({
         }),
 
         getImages: builder.mutation<IImage[], void>({
-            query: () =>({
-                url:`/images`,
-                method:'GET'
-            }) 
+            query: () => ({
+                url: `/images`,
+                method: 'GET'
+            })
         }),
 
-        updateImage: builder.mutation<{message:String,image:IImage}, { id: string; data: Partial<IImage> }>({
+        updateImage: builder.mutation<{ message: String, image: IImage }, { id: string; data: Partial<IImage> }>({
             query: ({ id, data }) => ({
                 url: `/images/${id}`,
                 method: 'PUT',
@@ -86,14 +98,14 @@ export const userApi = createApi({
             })
         }),
 
-        updateImageOrder: builder.mutation<{ success:boolean, message: string }, { images: ImageOrderUpdate[] }>({
+        updateImageOrder: builder.mutation<{ success: boolean, message: string }, { images: ImageOrderUpdate[] }>({
             query: (data) => ({
                 url: '/images/order',
                 method: 'PATCH',
                 body: data,
             })
         }),
-    }),
+    })
 
 })
 

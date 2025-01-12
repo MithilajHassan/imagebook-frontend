@@ -1,31 +1,24 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit"
 
-interface UserInfo {
-    _id: string;
-    name: string;
-    email: string;
-    phone: number;
+interface AuthState {
+    token: string | null
 }
 
-interface InitialState {
-    userInfo:UserInfo | null
-} 
-
-const initialState: InitialState = {
-    userInfo: localStorage.getItem('userInfo') ? JSON.parse(localStorage.getItem('userInfo')!) : null,
+const initialState: AuthState = {
+    token: localStorage.getItem('token') ? localStorage.getItem('token')! : null,
 }
 
 const authSlice = createSlice({
     name: 'auth',
     initialState,
     reducers: {
-        setCredentials: (state, action: PayloadAction<UserInfo>) => {
-            state.userInfo = action.payload
-            localStorage.setItem('userInfo', JSON.stringify(action.payload))
+        setCredentials: (state, action: PayloadAction<string>) => {
+            state.token = action.payload
+            localStorage.setItem('token', action.payload)
         },
         clearAuth: (state) => {
-            state.userInfo = null
-            localStorage.removeItem('userInfo')
+            state.token = null
+            localStorage.removeItem('token')
         },
     }
 })

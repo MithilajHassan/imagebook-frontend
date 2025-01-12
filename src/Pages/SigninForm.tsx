@@ -24,7 +24,7 @@ const formSchema = z.object({
 });
 
 export default function SigninForm() {
-    const { userInfo } = useSelector((state: RootState) => state.auth)
+    const { token } = useSelector((state: RootState) => state.auth)
     const [signin] = useSigninMutation()
     const dispatch = useDispatch()
     const navigate = useNavigate()
@@ -34,10 +34,10 @@ export default function SigninForm() {
             email: "",
             password: "",
         },
-    });
+    })
 
     useEffect(() => {
-        if (userInfo) {
+        if (token) {
             navigate('/images')
         }
     }, [])
@@ -51,19 +51,14 @@ export default function SigninForm() {
 
             if (res.success) {
 
-                dispatch(setCredentials({
-                    _id: res.userData._id!,
-                    name: res.userData.name,
-                    email: res.userData.email,
-                    phone: res.userData.phone
-                }))
+                dispatch(setCredentials(res.token))
 
                 navigate('/images')
             }
         } catch (err: any) { 
             toast.error(err?.data?.message)
         }
-    };
+    }
 
     return (
         <div className="w-full min-h-screen flex items-center">
