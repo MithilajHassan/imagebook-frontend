@@ -1,13 +1,30 @@
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { toast } from "react-toastify";
 import { Button } from "../ui/button";
-import { useCreateImageMutation } from "@/slices/apiSlice";
+import { useCreateImageMutation, useUpdateImageMutation } from "@/slices/apiSlice";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/store";
+import { addImage, editImage } from "@/slices/imagesSlice";
 
-const ImageUploadForm = () => {
+type Prope = {
+  id?: string;
+  editTitle?: string;
+  closeForm?: React.Dispatch<React.SetStateAction<boolean>>
+}
+
+const ImageUploadForm = ({ id, editTitle, closeForm }: Prope) => {
   const [image, setImage] = useState<File | null>(null)
   const [title, setTitle] = useState("")
-  const [createImageData] = useCreateImageMutation() 
+  const [createImageData] = useCreateImageMutation()
+  const [updateImageData] = useUpdateImageMutation()
+  const dispatch = useDispatch<AppDispatch>()
+
+  useEffect(() => {
+    if (id && editTitle) {
+      setTitle(editTitle)
+    }
+  },[])
 
   const onDrop = (acceptedFiles: File[]) => {
     if (acceptedFiles.length > 0) {
@@ -23,11 +40,11 @@ const ImageUploadForm = () => {
 
   const uploadImage = async () => {
     if (!image) {
-      toast.error("No image selected");
+      if (!id) toast.error("No image selected");
       return;
     }
     const data = new FormData();
-    data.append("file", image);
+    data.append("file", image)
     data.append(
       "upload_preset",
       process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET as string
@@ -46,29 +63,62 @@ const ImageUploadForm = () => {
       const res = await response.json()
 
       return res.public_id
-      
-    } catch (err:any) {
-      toast.error(err.data.message||'Error in upload image')
+
+    } catch (err: any) {
+      toast.error(err.data.message || 'Error in upload image')
     }
   }
 
-  const handleSubmit = async(e: FormEvent) => {
-    e.preventDefault();
-    if (image && title) {
-      const url = await uploadImage()
-      if(url){
-        const res = await createImageData({imagePath:url,title}).unwrap()
-          if(res){
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault()
+    if (id && closeForm) {
+      if (title) {
+        if (image) {
+          const url = await uploadImage()
+          if (url) {
+            const res = await updateImageData({ id, data: { imagePath: url, title } }).unwrap()
+            if (res) {
+              toast.success('Successfully updated')
+              dispatch(editImage({id,updates:res.image}))
+              setImage(null)
+              setTitle('')
+              closeForm(false)
+            }
+          } else {
+            toast.error('Error in image upload')
+          }
+
+        }
+        const res = await updateImageData({ id, data: { title } }).unwrap()
+        if (res) {
+          toast.success('Successfully updated')
+          dispatch(editImage({id,updates:res.image}))
+          setImage(null)
+          setTitle('')
+          closeForm(false)
+        }
+      } else {
+        toast.error("Please enter a title.")
+      }
+    } else {
+      if (image && title) {
+        const url = await uploadImage()
+        if (url) {
+          const res = await createImageData({ imagePath: url, title }).unwrap()
+          if (res) {
             toast.success('Successfully uploaded')
             setImage(null)
             setTitle('')
-          } 
-      }else{
-        toast.error('No image path')
+            dispatch(addImage(res.image))
+          }
+        } else {
+          toast.error('No image path')
+        }
+      } else {
+        toast.error("Please upload a file and enter a title.");
       }
-    } else {
-      toast.error("Please upload a file and enter a title.");
     }
+
   };
 
   return (
@@ -93,9 +143,10 @@ const ImageUploadForm = () => {
           placeholder="Enter title"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
+          onKeyDown={(e) => e.stopPropagation()}
           className="w-full p-2 mb-2 border border-gray-300 rounded-lg focus:outline-none"
         />
-        <Button type="submit" className="w-full" size={'lg'}>Upload</Button>
+        <Button type="submit" className="w-full" size={'lg'}>{id ? "Update" : "Upload"}</Button>
       </form>
     </div>
   );

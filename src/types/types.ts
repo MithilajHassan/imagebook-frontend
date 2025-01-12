@@ -15,6 +15,6 @@ export type IImage = {
 }
 
 export type ImageOrderUpdate = {
-    id: string;
+    _id: string;
     order: number;
 }

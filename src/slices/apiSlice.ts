@@ -56,7 +56,7 @@ export const userApi = createApi({
 
         //---------------------- Images Api---------------------------------------//
 
-        createImage: builder.mutation<IImage, Partial<IImage>>({
+        createImage: builder.mutation<{message:String,image:IImage}, Partial<IImage>>({
             query: (image) => ({
                 url: '/images',
                 method: 'POST',
@@ -71,7 +71,7 @@ export const userApi = createApi({
             }) 
         }),
 
-        updateImage: builder.mutation<IImage, { id: string; data: Partial<IImage> }>({
+        updateImage: builder.mutation<{message:String,image:IImage}, { id: string; data: Partial<IImage> }>({
             query: ({ id, data }) => ({
                 url: `/images/${id}`,
                 method: 'PUT',
@@ -86,11 +86,11 @@ export const userApi = createApi({
             })
         }),
 
-        updateImageOrder: builder.mutation<{ message: string }, { imageOrder: ImageOrderUpdate[] }>({
-            query: ({ imageOrder }) => ({
+        updateImageOrder: builder.mutation<{ success:boolean, message: string }, { images: ImageOrderUpdate[] }>({
+            query: (data) => ({
                 url: '/images/order',
-                method: 'PUT',
-                body: { imageOrder },
+                method: 'PATCH',
+                body: data,
             })
         }),
     }),

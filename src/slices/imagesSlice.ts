@@ -23,10 +23,10 @@ const imageSlice = createSlice({
     },
 
     editImage: (state, action: PayloadAction<{ id: string; updates: Partial<IImage> }>) => {
-      const { id, updates } = action.payload;
-      const image = state.images.find((img) => img._id === id);
-      if (image) {
-        Object.assign(image, updates) 
+      const { id, updates } = action.payload
+      const index = state.images.findIndex((img) => img._id === id)
+      if (index != -1) {
+        state.images[index] = {...state.images[index],...updates} 
       }
     },
 
