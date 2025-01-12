@@ -50,14 +50,6 @@ export const userApi = createApi({
             })
         }),
 
-        signout: builder.mutation<{ message: string, success: boolean }, void>({
-            query: (data) => ({
-                url: `/signout`,
-                method: 'POST',
-                body: data
-            })
-        }),
-
         changePassword: builder.mutation<{ message: string, success: boolean }, { email: string, newPassword: string }>({
             query: (data) => ({
                 url: `/changepassword`,
@@ -115,7 +107,6 @@ export const {
     useVerifyUserMutation,
     useSigninMutation,
     useResendOtpMutation,
-    useSignoutMutation,
     useChangePasswordMutation,
     useCreateImageMutation,
     useUpdateImageMutation,
