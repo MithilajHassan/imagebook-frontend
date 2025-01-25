@@ -6,6 +6,7 @@ import { useCreateImageMutation, useUpdateImageMutation } from "@/slices/apiSlic
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/store";
 import { addImage, editImage } from "@/slices/imagesSlice";
+import Loader from "./Loader";
 
 type Prope = {
   id?: string;
@@ -16,7 +17,7 @@ type Prope = {
 const ImageUploadForm = ({ id, editTitle, closeForm }: Prope) => {
   const [image, setImage] = useState<File | null>(null)
   const [title, setTitle] = useState("")
-  const [createImageData] = useCreateImageMutation()
+  const [createImageData, { isLoading }] = useCreateImageMutation()
   const [updateImageData] = useUpdateImageMutation()
   const dispatch = useDispatch<AppDispatch>()
 
@@ -24,7 +25,7 @@ const ImageUploadForm = ({ id, editTitle, closeForm }: Prope) => {
     if (id && editTitle) {
       setTitle(editTitle)
     }
-  },[])
+  }, [])
 
   const onDrop = (acceptedFiles: File[]) => {
     if (acceptedFiles.length > 0) {
@@ -79,7 +80,7 @@ const ImageUploadForm = ({ id, editTitle, closeForm }: Prope) => {
             const res = await updateImageData({ id, data: { imagePath: url, title } }).unwrap()
             if (res) {
               toast.success('Successfully updated')
-              dispatch(editImage({id,updates:res.image}))
+              dispatch(editImage({ id, updates: res.image }))
               setImage(null)
               setTitle('')
               closeForm(false)
@@ -92,7 +93,7 @@ const ImageUploadForm = ({ id, editTitle, closeForm }: Prope) => {
         const res = await updateImageData({ id, data: { title } }).unwrap()
         if (res) {
           toast.success('Successfully updated')
-          dispatch(editImage({id,updates:res.image}))
+          dispatch(editImage({ id, updates: res.image }))
           setImage(null)
           setTitle('')
           closeForm(false)
@@ -123,6 +124,7 @@ const ImageUploadForm = ({ id, editTitle, closeForm }: Prope) => {
 
   return (
     <div className=" mx-auto text-center">
+      { isLoading && <Loader />}
       <div
         {...getRootProps()}
         className="border-2 border-dashed bg-white border-gray-300 p-6 rounded-lg cursor-pointer mb-1 hover:border-blue-500"

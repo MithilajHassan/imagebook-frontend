@@ -8,6 +8,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { toast } from "react-toastify";
 import { Link } from "react-router-dom";
 import { useSignupMutation } from "@/slices/apiSlice";
+import Loader from "./Loader";
 
 
 const formSchema = z.object({
@@ -38,7 +39,7 @@ type Props = {
 
 export default function SignupForm({ setOtpSent, setUserEmail }: Props) {
 
-  const [signup] = useSignupMutation()
+  const [signup, { isLoading }] = useSignupMutation()
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -63,7 +64,7 @@ export default function SignupForm({ setOtpSent, setUserEmail }: Props) {
         setOtpSent(true)
         setUserEmail(data.email)
       }
-    } catch (err:any) {
+    } catch (err: any) {
       toast.error(err?.data?.message)
       console.log(err)
     }
@@ -71,6 +72,7 @@ export default function SignupForm({ setOtpSent, setUserEmail }: Props) {
 
   return (
     <div className="shadow bg-white w-5/12 rounded-md mx-auto py-4 my-10">
+      { isLoading && <Loader />}
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2 mx-12">
           <h3 className="font-bold text-center text-xl">Sign Up</h3>

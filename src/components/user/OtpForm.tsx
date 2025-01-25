@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { useResendOtpMutation, useVerifyUserMutation } from "@/slices/apiSlice";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import Loader from "./Loader";
 
 const otpSchema = z.object({
     otp: z
@@ -22,7 +23,7 @@ type Props = {
 
 export default function OTPForm({ email, forgotPassword}: Props) {
     const [timer, setTimer] = useState(60);
-    const [verifyUser] = useVerifyUserMutation()
+    const [verifyUser , {isLoading}] = useVerifyUserMutation()
     const [resendOtp] = useResendOtpMutation()
     const navigate = useNavigate()
     const form = useForm({
@@ -69,6 +70,7 @@ export default function OTPForm({ email, forgotPassword}: Props) {
     return (
         <div className="w-full min-h-screen flex items-center">
             <div className="shadow bg-white w-5/12 rounded-md mx-auto py-4 my-10">
+            { isLoading && <Loader />}
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 mx-12">
                         <h3 className="font-bold text-center text-xl">Enter OTP</h3>

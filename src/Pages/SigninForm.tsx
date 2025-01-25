@@ -12,6 +12,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { setCredentials } from "@/slices/authSlice";
 import { useEffect } from "react";
 import { RootState } from "@/store";
+import Loader from "@/components/user/Loader";
 
 const formSchema = z.object({
     email: z.string().email({ message: "Invalid email address" }),
@@ -25,7 +26,7 @@ const formSchema = z.object({
 
 export default function SigninForm() {
     const { token } = useSelector((state: RootState) => state.auth)
-    const [signin] = useSigninMutation()
+    const [signin,{isLoading}] = useSigninMutation()
     const dispatch = useDispatch()
     const navigate = useNavigate()
     const form = useForm({
@@ -62,6 +63,7 @@ export default function SigninForm() {
 
     return (
         <div className="w-full min-h-screen flex items-center">
+            { isLoading && <Loader />}
             <div className="shadow bg-white w-5/12 rounded-md mx-auto py-4 ">
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2 mx-12">
